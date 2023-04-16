@@ -137,6 +137,16 @@
         display: flex;
         justify-content: space-between;
       }
+
+      .image-border-recommender {
+        border-radius: 50% !important;
+        border: 3px solid red;
+      }
+
+      .image-border-referral {
+        border-radius: 50% !important;
+        border: 3px solid darkgreen;
+      }
     </style>
     <title>Document</title>
   </head>
@@ -149,10 +159,7 @@
               <a href="javascript:void(0);">
                 <div class="member-view-box">
                   <div class="member-image">
-                    <img
-                      src="https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true"
-                      alt="Member"
-                    />
+                    <img src="images/add.png" alt="Member" />
                     <div class="member-details">
                       <h3>1</h3>
                     </div>
@@ -163,7 +170,9 @@
           </ul>
         </div>
       </div>
-      <div class="status-bar flex w-1/2 bg-green-100 p-5 flex-col gap-5">
+      <div
+        class="status-bar flex w-1/2 bg-green-100 p-5 flex-col gap-5 border-l-2 border-b-2 border-pink-100 rounded-bl-2xl"
+      >
         <div class="flex gap-5 justify-between">
           <div>Recommender ID:</div>
           <input
@@ -269,16 +278,8 @@
           var img = $(_this).find("img").first();
           var src = img.attr("src");
 
-          if (isActive)
-            img.attr(
-              "src",
-              "https://github.com/steadfastbae/mlm-simulator/blob/main/member.png?raw=true"
-            );
-          else
-            img.attr(
-              "src",
-              "https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true"
-            );
+          if (isActive) img.attr("src", "images/member.png");
+          else img.attr("src", "images/add.png");
         }
         function calcCompanyStatus() {
           var n_members = $("ul.active>li.active:not(.folded)").length;
@@ -314,9 +315,11 @@
           $("#profit").text(profit);
         }
         function setData(_this) {
-          var id = $(_this).find("h3").first();
+          var id = $(_this).find("h3").first().text().trim();
           var recommender_id = $("#input-recommender-id").val();
-          $(_this).data(new Member(id, recommender_id));
+
+          if (jQuery.isEmptyObject($(_this).data()))
+            $(_this).data(new Member(id, recommender_id));
         }
         function calcMemeberStatus(_this) {
           var isActive = $(_this).parent().hasClass("active");
@@ -325,6 +328,7 @@
             calcMemberRecommenderId(_this);
             calcMemberDirectBonus(_this);
             calcMemberTeamCommission(_this);
+            showRelationship(_this);
           }
         }
         function calcMemberId(_this) {
@@ -336,7 +340,8 @@
           $("#recommender-id").text(recommender_id);
         }
         function calcMemberDirectBonus(_this) {
-          var id = $(_this).find("h3").first().text();
+          // var id = $(_this).find("h3").first().text();
+          var id = $(_this).parent().data("id");
           var n_recommend = 0;
 
           $("li").each((_, v) => {
@@ -369,6 +374,29 @@
           if (Math.max(l_leg_cnt, r_leg_cnt) < 2) team_commission = 0;
           return team_commission;
         }
+        function showRelationship(_this) {
+          const { recommender_id: my_recommender_id, id: my_id } = $(_this)
+            .parent()
+            .data();
+
+          $("li.active").each((i, v) => {
+            var id = $(v).data("id");
+            var recommender_id = $(v).data("recommender_id");
+
+            // show recommender
+            if (id == my_recommender_id)
+              $(v).find("img").first().addClass("image-border-recommender");
+            // show referral
+            else if (recommender_id == my_id)
+              $(v).find("img").first().addClass("image-border-referral");
+            else
+              $(v)
+                .find("img")
+                .first()
+                .removeClass("image-border-recommender image-border-referral");
+          });
+        }
+
         function addChildren(_this) {
           var pos = $(_this).find("a").first();
           var id = $(_this).find("h3").first().text();
@@ -379,7 +407,7 @@
                   <a href="javascript:void(0);">
                     <div class="member-view-box">
                       <div class="member-image">
-                        <img src="https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true" alt="Member" />
+                        <img src="images/add.png" alt="Member" />
                         <div class="member-details">
                           <h3> ` +
             2 * id +
@@ -393,7 +421,7 @@
                   <a href="javascript:void(0);">
                     <div class="member-view-box">
                       <div class="member-image">
-                        <img src="https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true" alt="Member" />
+                        <img src="images/add.png" alt="Member" />
                         <div class="member-details">
                           <h3> ` +
             (2 * id + 1) +
