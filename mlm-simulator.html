@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://code.jquery.com/jquery-3.6.4.min.js"
+      integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <link rel="stylesheet" href="style.css" /> -->
+    <style>
+      .genealogy-scroll::-webkit-scrollbar {
+        width: 5px;
+        height: 8px;
+      }
+      .genealogy-scroll::-webkit-scrollbar-track {
+        border-radius: 10px;
+        background-color: #e4e4e4;
+      }
+      .genealogy-scroll::-webkit-scrollbar-thumb {
+        background: #212121;
+        border-radius: 10px;
+        transition: 0.5s;
+      }
+      .genealogy-scroll::-webkit-scrollbar-thumb:hover {
+        background: #d5b14c;
+        transition: 0.5s;
+      }
+
+      .genealogy-body {
+        white-space: nowrap;
+        overflow-y: hidden;
+        padding: 50px;
+        min-height: 500px;
+        padding-top: 10px;
+      }
+      .genealogy-tree ul {
+        padding-top: 20px;
+        position: relative;
+        padding-left: 0px;
+        display: flex;
+      }
+      .genealogy-tree li {
+        float: left;
+        text-align: center;
+        list-style-type: none;
+        position: relative;
+        padding: 20px 5px 0 5px;
+      }
+      .genealogy-tree li::before,
+      .genealogy-tree li::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 50%;
+        border-top: 2px solid #ccc;
+        width: 50%;
+        height: 18px;
+      }
+      .genealogy-tree li::after {
+        right: auto;
+        left: 50%;
+        border-left: 2px solid #ccc;
+      }
+      .genealogy-tree li:only-child::after,
+      .genealogy-tree li:only-child::before {
+        display: none;
+      }
+      .genealogy-tree li:only-child {
+        padding-top: 0;
+      }
+      .genealogy-tree li:first-child::before,
+      .genealogy-tree li:last-child::after {
+        border: 0 none;
+      }
+      .genealogy-tree li:last-child::before {
+        border-right: 2px solid #ccc;
+        border-radius: 0 5px 0 0;
+        -webkit-border-radius: 0 5px 0 0;
+        -moz-border-radius: 0 5px 0 0;
+      }
+      .genealogy-tree li:first-child::after {
+        border-radius: 5px 0 0 0;
+        -webkit-border-radius: 5px 0 0 0;
+        -moz-border-radius: 5px 0 0 0;
+      }
+      .genealogy-tree ul ul::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        border-left: 2px solid #ccc;
+        width: 0;
+        height: 20px;
+      }
+      .genealogy-tree li a {
+        text-decoration: none;
+        color: #666;
+        font-family: arial, verdana, tahoma;
+        font-size: 11px;
+        display: inline-block;
+        border-radius: 5px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+      }
+
+      .genealogy-tree li a:hover + ul li::after,
+      .genealogy-tree li a:hover + ul li::before,
+      .genealogy-tree li a:hover + ul::before,
+      .genealogy-tree li a:hover + ul ul::before {
+        /* border-color: #fbba00; */
+      }
+
+      .member-view-box {
+        padding: 0px 20px;
+        text-align: center;
+        border-radius: 4px;
+        position: relative;
+      }
+      .member-image {
+        width: 60px;
+        position: relative;
+      }
+      .member-image img {
+        width: 60px;
+        height: 60px;
+        border-radius: 6px;
+        /* background-color: #000; */
+        z-index: 1;
+      }
+
+      .price {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="flex">
+      <div class="body genealogy-body genealogy-scroll w-full">
+        <div class="genealogy-tree">
+          <ul class="active">
+            <li>
+              <a href="javascript:void(0);">
+                <div class="member-view-box">
+                  <div class="member-image">
+                    <img
+                      src="https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true"
+                      alt="Member"
+                    />
+                    <div class="member-details">
+                      <h3>1</h3>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="status-bar flex w-1/2 bg-green-100 p-5 flex-col gap-5">
+        <div class="flex gap-5 justify-between">
+          <div>Recommender ID:</div>
+          <input
+            id="input-recommender-id"
+            class="bg-transparent text-right w-1/4"
+            type="number"
+            value="0"
+          />
+        </div>
+        <div class="flex flex-col w-full">
+          <div class="border border-blue-500 px-5 py-3 rounded-3xl">
+            <div class="text-xl font-bold">Company</div>
+            <div class="price">
+              <div>Revenue :</div>
+              <div>$ <span id="revenue">0</span></div>
+            </div>
+            <div class="price">
+              <div>Direct Sale Bonus All :</div>
+              <div>$ <span id="company-direct-bonus">0</span></div>
+            </div>
+            <div class="price">
+              <div>Team Commission All :</div>
+              <div>$ <span id="company-team-commission">0</span></div>
+            </div>
+            <div class="price">
+              <div>Profit :</div>
+              <div>$ <span id="profit">0</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="border border-blue-500 px-5 py-3 rounded-3xl">
+          <div class="text-xl font-bold">Member</div>
+          <div class="flex justify-between">
+            <div>ID :</div>
+            <div id="member-id"></div>
+          </div>
+          <div class="flex justify-between">
+            <div>Recommender ID :</div>
+            <div id="recommender-id"></div>
+          </div>
+          <div class="price">
+            <div>Direct Sale Bonus :</div>
+            <div>$ <span id="member-direct-bonus">0</span></div>
+          </div>
+          <div class="price">
+            <div>Team Commission :</div>
+            <div>$ <span id="member-team-commission">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const product_price = 10000;
+      const direct_bonus_rate = 0.2;
+      const team_commission_rate = 0.1;
+
+      $(function () {
+        $(".genealogy-tree ul").hide();
+        $(".genealogy-tree>ul").show();
+        $(".genealogy-tree ul.active").show();
+
+        $(document).on("click", ".genealogy-tree li", function (e) {
+          addChildren(this);
+          var children = $(this).find("> ul");
+
+          if (children.is(":visible")) {
+            children.hide("fast").removeClass("active");
+            children.find("ul").removeClass("active");
+            children.find("li").each((i, v) => {
+              if ($(v).hasClass("active")) $(v).addClass("folded");
+            });
+          } else {
+            children.show("fast").addClass("active");
+            children.find("ul").addClass("active");
+            children.find("li").each((i, v) => {
+              if ($(v).hasClass("active")) $(v).removeClass("folded");
+            });
+          }
+
+          // li active
+          $(this).toggleClass("active");
+
+          toggleImage(this);
+          setData(this);
+          calcMemeberStatus($(this).children("a"));
+          calcCompanyStatus();
+          firstAdd();
+          e.stopPropagation();
+        });
+
+        // https://stackoverflow.com/questions/203198/event-binding-on-dynamically-created-elements
+        $(document).on("mouseover", "li a", function (e) {
+          calcMemeberStatus(this);
+        });
+
+        function firstAdd() {
+          if ($("#input-recommender-id").val() == 0)
+            $("#input-recommender-id").val(1);
+        }
+        function toggleImage(_this) {
+          var isActive = $(_this).hasClass("active");
+          var img = $(_this).find("img").first();
+          var src = img.attr("src");
+
+          if (isActive)
+            img.attr(
+              "src",
+              "https://github.com/steadfastbae/mlm-simulator/blob/main/member.png?raw=true"
+            );
+          else
+            img.attr(
+              "src",
+              "https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true"
+            );
+        }
+        function calcCompanyStatus() {
+          var n_members = $("ul.active>li.active:not(.folded)").length;
+          // var n_members = $("ul.active>li.active").length;
+
+          calcRevenue(n_members);
+          calcCompanyDirectBonus(n_members);
+          calcCompanyTeamCommission();
+          calcCompanyProfit();
+        }
+        function calcRevenue(n_members) {
+          var price = product_price * n_members;
+          $("#revenue").text(price);
+        }
+        function calcCompanyDirectBonus(n_members) {
+          var direct_bonus =
+            direct_bonus_rate * product_price * (n_members - 1);
+          if (direct_bonus < 0) direct_bonus = 0;
+          $("#company-direct-bonus").text(direct_bonus);
+        }
+        function calcCompanyTeamCommission() {
+          var sum = 0;
+          $("a").each((i, v) => {
+            sum += getTeamCommission($(v));
+          });
+          $("#company-team-commission").text(sum);
+        }
+        function calcCompanyProfit() {
+          var profit =
+            $("#revenue").text() -
+            $("#company-direct-bonus").text() -
+            $("#company-team-commission").text();
+          $("#profit").text(profit);
+        }
+        function setData(_this) {
+          var id = $(_this).find("h3").first();
+          var recommender_id = $("#input-recommender-id").val();
+          $(_this).data(new Member(id, recommender_id));
+        }
+        function calcMemeberStatus(_this) {
+          var isActive = $(_this).parent().hasClass("active");
+          if (isActive) {
+            calcMemberId(_this);
+            calcMemberRecommenderId(_this);
+            calcMemberDirectBonus(_this);
+            calcMemberTeamCommission(_this);
+          }
+        }
+        function calcMemberId(_this) {
+          var id = $(_this).find("h3").first().text();
+          $("#member-id").text(id);
+        }
+        function calcMemberRecommenderId(_this) {
+          var recommender_id = $(_this).parent().data("recommender_id");
+          $("#recommender-id").text(recommender_id);
+        }
+        function calcMemberDirectBonus(_this) {
+          var id = $(_this).find("h3").first().text();
+          var n_recommend = 0;
+
+          $("li").each((_, v) => {
+            if (id == $(v).data("recommender_id")) n_recommend++;
+          });
+
+          var direct_bonus = direct_bonus_rate * product_price * n_recommend;
+          $("#member-direct-bonus").text(direct_bonus);
+        }
+        function calcMemberTeamCommission(_this) {
+          var team_commission = getTeamCommission(_this);
+          $("#member-team-commission").text(team_commission);
+        }
+        function getTeamCommission(_this) {
+          var l_leg = $(_this).next().children("li").eq(0); // l_leg_children
+          var r_leg = $(_this).next().children("li").eq(1); // r_leg_children
+
+          var l_leg_cnt = $(l_leg).find("li.active:not(.folded)").length;
+          var r_leg_cnt = $(r_leg).find("li.active:not(.folded)").length;
+
+          if (l_leg.hasClass("active")) l_leg_cnt++; // l_leg_itself
+          if (r_leg.hasClass("active")) r_leg_cnt++; // r_leg_itself
+
+          var team_commission =
+            product_price *
+            direct_bonus_rate *
+            team_commission_rate *
+            Math.min(l_leg_cnt, r_leg_cnt);
+
+          if (Math.max(l_leg_cnt, r_leg_cnt) < 2) team_commission = 0;
+          return team_commission;
+        }
+        function addChildren(_this) {
+          var pos = $(_this).find("a").first();
+          var id = $(_this).find("h3").first().text();
+          s =
+            `
+              <ul>
+                <li>
+                  <a href="javascript:void(0);">
+                    <div class="member-view-box">
+                      <div class="member-image">
+                        <img src="https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true" alt="Member" />
+                        <div class="member-details">
+                          <h3> ` +
+            2 * id +
+            ` </h3>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0);">
+                    <div class="member-view-box">
+                      <div class="member-image">
+                        <img src="https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true" alt="Member" />
+                        <div class="member-details">
+                          <h3> ` +
+            (2 * id + 1) +
+            ` </h3>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            `;
+
+          if (!pos.next().length) {
+            pos.after(s);
+            pos.next().hide();
+          }
+        }
+
+        class Member {
+          constructor(
+            id,
+            recommender_id,
+            spent_direct_bonus,
+            spent_team_commission
+          ) {
+            this.id = id;
+            this.recommender_id = recommender_id;
+            this.spent_direct_bonus = 0;
+            this.spent_team_commission = 0;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
