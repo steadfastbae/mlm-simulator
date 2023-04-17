@@ -159,7 +159,10 @@
               <a href="javascript:void(0);">
                 <div class="member-view-box">
                   <div class="member-image">
-                    <img src="images/add.png" alt="Member" />
+                    <img
+                      src="https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true"
+                      alt="Member"
+                    />
                     <div class="member-details">
                       <h3>1</h3>
                     </div>
@@ -278,8 +281,16 @@
           var img = $(_this).find("img").first();
           var src = img.attr("src");
 
-          if (isActive) img.attr("src", "images/member.png");
-          else img.attr("src", "images/add.png");
+          if (isActive)
+            img.attr(
+              "src",
+              "https://github.com/steadfastbae/mlm-simulator/blob/main/member.png?raw=true"
+            );
+          else
+            img.attr(
+              "src",
+              "https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true"
+            );
         }
         function calcCompanyStatus() {
           var n_members = $("ul.active>li.active:not(.folded)").length;
@@ -407,7 +418,7 @@
                   <a href="javascript:void(0);">
                     <div class="member-view-box">
                       <div class="member-image">
-                        <img src="images/add.png" alt="Member" />
+                        <img src="https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true" alt="Member" />
                         <div class="member-details">
                           <h3> ` +
             2 * id +
@@ -421,7 +432,7 @@
                   <a href="javascript:void(0);">
                     <div class="member-view-box">
                       <div class="member-image">
-                        <img src="images/add.png" alt="Member" />
+                        <img src="https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true" alt="Member" />
                         <div class="member-details">
                           <h3> ` +
             (2 * id + 1) +
