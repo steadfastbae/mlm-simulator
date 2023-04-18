@@ -147,6 +147,10 @@
         border-radius: 50% !important;
         border: 3px solid darkgreen;
       }
+
+      .not-my-children {
+        opacity: 0.25;
+      }
     </style>
     <title>Document</title>
   </head>
@@ -239,7 +243,14 @@
         $(".genealogy-tree ul.active").show();
 
         $(document).on("click", ".genealogy-tree li", function (e) {
-          addChildren(this);
+          e.stopPropagation();
+
+          if (canAddChildren(this)) addChildren(this);
+          else {
+            alert("Only Parents can add children.");
+            return;
+          }
+
           var children = $(this).find("> ul");
 
           if (children.is(":visible")) {
@@ -261,15 +272,15 @@
 
           toggleImage(this);
           setData(this);
-          calcMemeberStatus($(this).children("a"));
+          calcMemberStatus($(this).children("a"));
           calcCompanyStatus();
           firstAdd();
-          e.stopPropagation();
+          // e.stopPropagation();
         });
 
         // https://stackoverflow.com/questions/203198/event-binding-on-dynamically-created-elements
         $(document).on("mouseover", "li a", function (e) {
-          calcMemeberStatus(this);
+          calcMemberStatus(this);
         });
 
         function firstAdd() {
@@ -332,7 +343,7 @@
           if (jQuery.isEmptyObject($(_this).data()))
             $(_this).data(new Member(id, recommender_id));
         }
-        function calcMemeberStatus(_this) {
+        function calcMemberStatus(_this) {
           var isActive = $(_this).parent().hasClass("active");
           if (isActive) {
             calcMemberId(_this);
@@ -382,7 +393,23 @@
             team_commission_rate *
             Math.min(l_leg_cnt, r_leg_cnt);
 
-          if (Math.max(l_leg_cnt, r_leg_cnt) < 2) team_commission = 0;
+          // if (Math.max(l_leg_cnt, r_leg_cnt) < 2) team_commission = 0;
+
+          var id = $(_this).find("h3").first().text();
+          var refer_cnt = 0;
+          $(_this)
+            .next()
+            .find("li")
+            .each((i, v) => {
+              var recommender_id = $(v).data("recommender_id");
+              if (id == recommender_id) refer_cnt++;
+            });
+
+          var condition1 = refer_cnt >= 2;
+          var condition2 = l_leg_cnt * r_leg_cnt >= 2;
+
+          if (!(condition1 && condition2)) team_commission = 0;
+
           return team_commission;
         }
         function showRelationship(_this) {
@@ -390,9 +417,13 @@
             .parent()
             .data();
 
+          $("img").addClass("not-my-children");
+          // console.log($("li.active").find("img"));
           $("li.active").each((i, v) => {
             var id = $(v).data("id");
             var recommender_id = $(v).data("recommender_id");
+
+            $(v).find("img").first().addClass("not-my-children");
 
             // show recommender
             if (id == my_recommender_id)
@@ -406,6 +437,9 @@
                 .first()
                 .removeClass("image-border-recommender image-border-referral");
           });
+
+          $(_this).parent().find("img").removeClass("not-my-children");
+          console.log($(_this));
         }
 
         function addChildren(_this) {
@@ -420,9 +454,9 @@
                       <div class="member-image">
                         <img src="https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true" alt="Member" />
                         <div class="member-details">
-                          <h3> ` +
+                          <h3>` +
             2 * id +
-            ` </h3>
+            `</h3>
                         </div>
                       </div>
                     </div>
@@ -434,9 +468,9 @@
                       <div class="member-image">
                         <img src="https://github.com/steadfastbae/mlm-simulator/blob/main/add.png?raw=true" alt="Member" />
                         <div class="member-details">
-                          <h3> ` +
+                          <h3>` +
             (2 * id + 1) +
-            ` </h3>
+            `</h3>
                         </div>
                       </div>
                     </div>
@@ -449,6 +483,22 @@
             pos.after(s);
             pos.next().hide();
           }
+        }
+
+        function canAddChildren(_this) {
+          // Only case of the leafNode
+          var isLeaf = $(_this).find("li").length == 0;
+          if (!isLeaf) return true;
+
+          var id = $(_this).find("h3").first().text();
+          var recommender_id = $("#input-recommender-id").val();
+
+          if (recommender_id == 0) return true; // First Add Exception
+          while (id >= 1) {
+            if (recommender_id == id) return true;
+            id = Math.floor(id / 2);
+          }
+          return false;
         }
 
         class Member {
